@@ -1,0 +1,92 @@
+{% extends 'portal/base.html' %}
+{% block title%}Dashboard{% endblock %}
+{% block style %}
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .status-pending { background-color: #ffcc00; color: #333; }   /* Yellow */
+    .status-approved { background-color: #28a745; color: white; } /* Green */
+    .status-denied { background-color: #dc3545; color: white; }   /* Red */
+
+    table td {
+        height: 50px; /* Adjust this number until it looks right to you */
+        vertical-align: middle; /* Keeps the text centered if the row is tall */
+    }
+
+    /* This prevents the "Actions" div from adding extra height */
+    .action-container {
+        display: inline-flex;
+        line-height: 1;
+    }
+{% endblock %}
+{% block content %}
+    <div class="container py-5">
+        <div class="card shadow-sm p-4 bg-white">
+
+            {% if role == 'MANAGER' %}
+                <div style="background-color: #f0f8ff; padding: 10px; border-left: 5px solid #007bff;">
+                    <strong>Manager Notice:</strong> You are viewing all employee requests.
+                </div>
+            {% endif %}
+
+            {% if role == 'MANAGER' %}
+                <h3>All Employee Requests:</h3>
+            {% else %}
+                <h3>Your Requests:</h3>
+            {% endif %}
+
+            <table class="table table-hover table-striped mt-4">
+                <thead class="table-dark"></thead>
+                <tr>
+                    {% if role == 'MANAGER' %}
+                    <th>User</th> {% endif %}
+                    <th>Title</th>
+                    <th>Status</th>
+                </tr>
+                {% for req in requests %}
+                <tr>
+                    {% if role == 'MANAGER' %}<td>{{ req.employee.username }}</td>{% endif %}
+                    <td>{{ req.title }}</td>
+                    <td class="align-middle">
+                        <div class="d-flex align-items-center" style="min-height: 32px;">
+                            <span class="badge rounded-pill me-3
+                                {% if req.status == 'PENDING' %} text-bg-warning
+                                {% elif req.status == 'APPROVED' %} text-bg-success
+                                {% else %} text-bg-danger
+                                {% endif %}">{{ req.status }}</span>
+
+                            {% if role == 'MANAGER' and req.status == 'PENDING' %}
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'update-status' req.pk 'APPROVED' %}"
+                                    class="link-success fs-5"
+                                    title="Approve"><i class="bi bi-check-circle-fill"></i></a>
+
+                                    <a href="{% url 'update-status' req.pk 'DENIED' %}" 
+                                    class="link-danger fs-5"
+                                    title="Deny"><i class="bi bi-x-circle-fill"></i></a>
+                                </div>
+                            {% endif %}
+
+                            {% if role != 'MANAGER' and req.status == 'PENDING' %}
+                                <a href="{% url 'delete-request' req.pk %}"
+                                    class="link-danger ms-2"
+                                    title="Delete Request">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <p>You haven't submitted any requests yet.</p>
+                {% endfor %}
+            </table>
+
+            <a href="{% url 'new-request' %}">Create New Request</a>
+        </div>
+    </div>
+{% endblock %}
