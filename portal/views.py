@@ -64,3 +64,15 @@ def delete_request_view(request, pk):
         messages.error(request, 'You cannot delete a request that has already been processed.')
     
     return redirect('user-home')
+
+@login_required
+def request_details_view(request, pk):
+    req = get_object_or_404(Request, pk=pk)
+    
+
+    context = {
+        'req': req,
+        'profile': req.employee.employeeprofile
+    }
+
+    return render(request, 'portal/request_details.html', context)

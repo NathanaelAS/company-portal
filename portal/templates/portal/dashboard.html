@@ -28,7 +28,7 @@
         <div class="card shadow-sm p-4 bg-white">
 
             {% if role == 'MANAGER' %}
-                <div style="background-color: #f0f8ff; padding: 10px; border-left: 5px solid #007bff;">
+                <div class ="mb-3" style="background-color: #f0f8ff; padding: 10px; border-left: 5px solid #007bff;">
                     <strong>Manager Notice:</strong> You are viewing all employee requests.
                 </div>
             {% endif %}
@@ -46,6 +46,7 @@
                     <th>User</th> {% endif %}
                     <th>Title</th>
                     <th>Status</th>
+                    <th>Details</th>
                 </tr>
                 {% for req in requests %}
                 <tr>
@@ -80,13 +81,17 @@
                             {% endif %}
                         </div>
                     </td>
+                    <td>
+                        <a href="{% url 'request-details' req.pk %}" class="btn btn-secondary rounded-pill">See Details</a>
+                    </td>
                 </tr>
                 {% empty %}
                 <p>You haven't submitted any requests yet.</p>
                 {% endfor %}
             </table>
-
+            {% if role != 'MANAGER' %}
             <a href="{% url 'new-request' %}" class="btn btn-info fw-bold">Create New Request</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
