@@ -42,6 +42,7 @@ def create_request_view(request):
 
 @login_required
 def update_status_view(request, pk, new_status):
+
     profile = request.user.employeeprofile
     if profile.role != 'MANAGER':
         return redirect('user-home')
@@ -72,7 +73,8 @@ def request_details_view(request, pk):
 
     context = {
         'req': req,
-        'profile': req.employee.employeeprofile
+        'profile': req.employee.employeeprofile,
+        'category': req.category,
     }
 
     return render(request, 'portal/request_details.html', context)

@@ -39,6 +39,10 @@ class Request(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
 
     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests')

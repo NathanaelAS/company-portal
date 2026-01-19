@@ -1,5 +1,13 @@
 {% extends 'portal/base.html' %}
 {% block title%}Create Request{% endblock %}
+{% block style %}
+    .vacation-field {
+        transition: opacity 0.15s linear;
+    }
+    .vacation-field.fade:not(.show) {
+        opacity: 0;
+    }
+{% endblock %}
 {% block content %}
     <div class="container py-5">
         <div class="row justify-content-center">
@@ -9,9 +17,21 @@
                     
                     <form method="post">
                         {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger shadow-sm">
+                                {% for error in form.non_field_errors %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         
                         {% for field in form %}
-                            <div class="mb-3">
+                            <div class="mb-3 {% if field.name == 'start_date' or field.name == 'end_date' %}vacation-field fade d-none{% endif %}">
+
                                 <label class="form-label font-weight-bold">{{ field.label }}</label>
                                 <div class="form-group">
                                     {{ field }}
@@ -25,6 +45,11 @@
                             </div>
                         {% endfor %}
 
+                        <div id="day-counter" class="alert alert-info py-2 px-3 mb-3 d-none" style="border-left: 5px solid #0d6efd;">
+                            <i class="bi bi-calendar-check me-2"></i>
+                            <strong>Working Days:</strong> <span id="days-count">0</span>
+                        </div>
+
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary">Submit to Manager</button>
                             <a href="{% url 'user-home' %}" class="btn btn-outline-secondary">Cancel</a>
@@ -34,4 +59,78 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryField = document.querySelector('[name="category"]');
+        const vacationFields = document.querySelectorAll('.vacation-field');
+
+        const startInput = document.querySelector('[name="start_date"]');
+        const endInput = document.querySelector('[name="end_date"]');
+        const counterDiv = document.getElementById('day-counter');
+        const countSpan = document.getElementById('days-count');
+
+        function calculateDays() {
+            if (startInput.value && endInput.value) {
+                // 1. Get the strings (e.g., "2026-06-01")
+                const startParts = startInput.value.split('-');
+                const endParts = endInput.value.split('-');
+
+                // 2. Create dates using the (Year, MonthIndex, Day) constructor
+                // Month is 0-indexed, so 01 (Jan) becomes 0.
+                // We set the time to 12:00 PM to stay far away from "Midnight" shifts.
+                let start = new Date(startParts[0], startParts[1] - 1, startParts[2], 12, 0, 0);
+                let end = new Date(endParts[0], endParts[1] - 1, endParts[2], 12, 0, 0);
+
+                let businessDays = 0;
+                let currentDate = new Date(start);
+
+                // 3. The loop
+                while (currentDate <= end) {
+                    const dayOfWeek = currentDate.getDay(); 
+                    
+                    // Check: 0 is Sunday, 6 is Saturday
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                        businessDays++;
+                    }
+
+                    // Move to next day
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                countSpan.innerText = businessDays;
+                counterDiv.classList.remove('d-none');
+            }
+        }
+
+        function toggleDateFields() {
+            const isVacation = categoryField.value === 'VACATION';
+
+            vacationFields.forEach(field => {
+                if (isVacation) {
+                    field.classList.remove('d-none');
+                    setTimeout(() => {
+                        field.classList.add('show');
+                    }, 10);
+                } else {
+                    field.classList.remove('show');
+
+                    const input = field.querySelector('input');
+                    if (input) {input.value = '';}
+
+                    setTimeout(() => {
+                        field.classList.add('d-none');
+                    }, 150);
+                }
+            });
+        }
+
+        categoryField.addEventListener('change', toggleDateFields);
+        startInput.addEventListener('change', calculateDays);
+        endInput.addEventListener('change', calculateDays);
+
+        toggleDateFields();
+    });
+</script>
 {% endblock %}

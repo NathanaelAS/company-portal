@@ -50,6 +50,14 @@
                                 <p class="fw-bold"><i class="bi bi-calendar3 me-2"></i>{{ req.created_at|date:"M d, Y" }}</p>
                             </div>
                         </div>
+                        {% if category == 'VACATION' %}
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h6 class="text-muted small text-uppercase fw-bold">Dates</h6>
+                                <p class="fw-bold"><i class="bi bi-calendar3 me-2"></i>{{ req.start_date }} - {{ req.end_date }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="col-lg-4">
@@ -93,8 +101,8 @@
                 {% endif %}
 
                 {% if user.id == req.employee.id and req.status == 'PENDING' %}
-                    <button class="btn btn-primary btn-rounded px-4" data-mdb-ripple-init>Edit Request</button>
-                    <button class="btn btn-danger btn-rounded px-4">Delete</button>
+                    <button class="btn btn-primary btn-rounded px-4">Edit Request</button>
+                    <a class="btn btn-danger btn-rounded px-4" href="{% url 'delete-request' req.pk %}">Delete</a>
                 {% endif %}
             </div>
         </div>
