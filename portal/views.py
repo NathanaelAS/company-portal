@@ -4,6 +4,7 @@ from .models import Request
 from .forms import RequestForm
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from datetime import date, timedelta
 
 # Create your views here.
 
@@ -11,6 +12,10 @@ from django.contrib import messages
 def dashboard_view(request):
     from .models import EmployeeProfile
     profile, created = EmployeeProfile.objects.get_or_create(user=request.user)
+
+    today = date.today()
+
+    request_past_due_date = today - timedelta(days=10)
 
     if profile.role == 'MANAGER':
         user_requests = Request.objects.all()
@@ -21,6 +26,7 @@ def dashboard_view(request):
         'requests': user_requests,
         'role': profile.role,
         'username': request.user.username,
+        'request_past_due_date': request_past_due_date,
     }
     return render(request, 'portal/dashboard.html', context)
 

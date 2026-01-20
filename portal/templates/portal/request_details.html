@@ -13,7 +13,8 @@
                                 <li class="breadcrumb-item active">#{{ req.id }}</li>
                             </ol>
                         </nav>
-                        <h2 class="fw-bold text-dark mb-0">{{ req.title }}</h2>
+                        <h2 class="fw-bold text-dark mb-3">{{ req.title }}</h2>
+                        <h6 class="text-uppercase text-muted fw-bold small">Submitted on: {{ req.created_at|date:"M d, Y" }}</h6>
                     </div>
                     <span class="badge rounded-pill p-2 px-3 
                         {% if req.status == 'PENDING' %} bg-warning text-dark
@@ -46,8 +47,7 @@
                                 <p class="fw-bold"><i class="bi bi-tag me-2"></i>{{ req.get_category_display }}</p>
                             </div>
                             <div class="col-sm-6">
-                                <h6 class="text-muted small text-uppercase fw-bold">Submission Date</h6>
-                                <p class="fw-bold"><i class="bi bi-calendar3 me-2"></i>{{ req.created_at|date:"M d, Y" }}</p>
+                                
                             </div>
                         </div>
                         {% if category == 'VACATION' %}
